@@ -2,7 +2,7 @@
 
 requirejs.config({
 	paths: {
-		jquery: 'http://code.jquery.com/jquery-2.1.4.min.js'
+		jquery: 'http://code.jquery.com/jquery-2.1.4.min'
 	}
 });
 
