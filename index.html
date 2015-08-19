@@ -4,26 +4,27 @@
 	<title>Dottie's Solitaire</title>
 	<meta name="viewport" content="width=640, user-scalable=no">
 	<link rel="stylesheet" href="game.css" />
-	<script data-main="game.js" src="http://requirejs.org/docs/release/2.1.20/minified/require.js"></script>
+	<script data-main="main.js" src="http://requirejs.org/docs/release/2.1.20/minified/require.js"></script>
 </head>
 <body>
-	<div>
+	<div id="play" class="landscape">
 		<div>
-			<span class="CardFoundation"></span>
-			<span class="CardFoundation"></span>
-			<span class="CardFoundation"></span>
-			<span class="CardFoundation"></span>
+			<span class="foundation"></span>
+			<span class="foundation"></span>
+			<span class="foundation"></span>
+			<span class="foundation"></span>
 		</div>
 		<div>
-			<span class="CardTableau"></span>
-			<span class="CardTableau"></span>
-			<span class="CardTableau"></span>
-			<span class="CardTableau"></span>
-			<span class="CardTableau"></span>
-			<span class="CardTableau"></span>
-			<span class="CardTableau"></span>
-			<span class="CardTableau"></span>
+			<div class="tableau"></div>
+			<div class="tableau"></div>
+			<div class="tableau"></div>
+			<div class="tableau"></div>
+			<div class="tableau"></div>
+			<div class="tableau"></div>
+			<div class="tableau"></div>
+			<div class="tableau"></div>
 		</div>
 	</div>
+	<div id="log"></div>
 </body>
 </html>

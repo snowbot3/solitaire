@@ -1,86 +1,171 @@
-html {
-	margin: 0;
-	height: 100%;
-}
-body {
-	margin: 0;
-	height: 100%;
-	background: #33AA88;
-}
-body >div {
-	padding: 10px;
-}
+html {}
+body { margin: 0; font-size: 12px; }
+body { background: #33AA88; }
+#play { font-size: 24px; }
+#log { font-size: 12px; }
 
-.card {
-	position: relative;
-	display: inline-block;
-	border: 2px solid black;
-	border-radius: 5px;
-	background: white;
-	width: 70px; height: 98px;
-	font-size: 36px;
-	line-height: 36px;
-	font-family: monospace;
-}
-.card::before {
-	content: attr(data-face);
-	position: absolute;
-	top: 0px; left: 0px;
-	display: inline-block;
-	width: 48px;
+
+/* Default Size Shape Styling */
+.foundation, .foundation::before,
+.tableau::before,
+.card, .card.down::after {
+	box-sizing: border-box;
+	width: 50px; height: 70px;
 	text-align: center;
+	line-height: 22px;
+}
+.tableau {
+	box-sizing: border-box;
+	width: 50px;
+}
+.card, .card.down::after {
+	border: 1px solid black;
+}
+.foundation::before, .tableau::before {
+	border: 1px solid #99ccaa;
+	background: #66aa99;
+	color: #99ccaa;
+}
+.card { background: white; }
+.card.down::after {
+	background: navy;
+	top: -1px; left: -1px;
+}
+.card.active { border-color: blue; }
+.card.dragging { opacity: 0.4; }
+
+
+/* Default Card Styling */
+.card {
+	display: inline-block;
+	position: relative;
+}
+.card.down::after {
+	content: "";
+	display: block;
+	position: absolute;
 }
 
+.card.red { color: #aa0000; }
 
-.CardTableau {
+/*.suitSpade, .suitHeart, .suitClub, .suitDiamond {
+	font-family: cursive;
+}
+.suitSpade::after { content: "\2660"; }
+.suitHeart::after { content: "\2665"; }
+.suitClub::after { content: "\2663"; }
+.suitDiamond::after { content: "\2666"; }*/
+
+
+/* Default Base Layout Styling */
+.foundation {
 	display: inline-block;
+	position: relative;
 	vertical-align: top;
 }
-.CardTableau .card {
-	display: block;
-	margin-bottom: -55px;
-	box-shadow: -2px -2px 4px rgba(0,0,0,0.7);
+.foundation >.card {
+	position: absolute;
+	left: 0;
+}
+.tableau {
+	position: relative;
 }
 
 
-.card::after {
+/* Ghost Cards */
+.foundation::before {
+	display: block;
 	position: absolute;
-	top: 3px; right: 5px;
+	content: "A-";
+}
+.tableau::before {
+	display: block;
+	position: absolute;
+	content: "K-";
+}
+
+
+/* Stacking Layout Style */
+.tableau {
+	display: inline-block;
+	margin: 2px 2px 60px 4px;
+	vertical-align: top;
+}
+.tableau >.card {
+	display: block;
+	margin-bottom: -46px;
+}
+/*.tableau >.card.down { margin-bottom: -55px; }
+.tableau.long  >.card{ margin-bottom: -48px; }
+.tableau.long >.card.down { margin-bottom: -58px; }
+.tableau.extra.long >.card.down { margin-bottom: -62px; }*/
+
+
+
+/* Pretty Concept Styling */
+.foundation, .foundation::before,
+.tableau::before,
+.card, .card.down::after {
+	width: 60px; height: 84px;
+}
+.tableau {
+	width: 60px;
+}
+.card, .card.down::after {
+	border: 2px solid black;
+	border-radius: 6px;
+}
+.foundation::before, .tableau::before {
+	border: 2px solid #99ccaa;
+	border-radius: 6px;
+}
+.card { background: white; }
+.card.down::after { top: -2px; left: -2px; }
+.tableau >.card { margin-bottom: -54px; }
+.tableau >.card.down { margin-bottom: -64px; }
+.tableau.long  >.card{ margin-bottom: -60px; }
+.tableau.long >.card.down { margin-bottom: -70px; }
+.tableau.extra.long >.card { margin-bottom: -64px; }
+.tableau.extra.long >.card.down { margin-bottom: -75px; }
+
+
+/* Card Image Suit */
+.suitSpade,
+.suitHeart,
+.suitClub,
+.suitDiamond {
 	display: inline-block;
 	width: 24px; height: 28px;
 	background: url(suits36.png) no-repeat;
-	content: '';
+	vertical-align: top;
 }
 
-.suitSpade::after {
-	background-position: 0px 0px;
-}
-.suitHeart::after {
-	/* background-position: -25px -58px; */
-	background-position: -25px -116px;
-}
-.suitClub::after {
-	background-position: -50px -0px;
-}
-.suitDiamond::after {
-	background-position: -75px -116px;
-}
+.suitSpade { background-position: 0px 0px; }
+.suitHeart { background-position: -25px -116px; }
+.suitClub { background-position: -50px -0px; }
+.suitDiamond { background-position: -75px -116px; }
 
-.suitHeart,.suitDiamond {
-	color: #AA0000;
-}
-
-
-.card.facedDown {
-	background: #3366AA;
+/* Card Back Image */
+.card.down {}
+.card.down::after {
 	background: url(back1.jpg);
 	background-position: -14px -19px;
 	background-size: 100px auto;
 }
-.card.facedDown::before {
-	content: '';
-}
-.card.facedDown::after {
-	background: none;
-}
 
+
+/* Landscape Specials (Designed for 640px x 360px) */
+#play.landscape {
+	width: 640px;
+	white-space: nowrap;
+}
+#play.landscape >div {
+	display: inline-block;
+	vertical-align: top;
+	margin: 2px;
+}
+#play.landscape .foundation {
+	display: block;
+	margin: 2px 4px 4px;
+}
+/* End Landscape */
