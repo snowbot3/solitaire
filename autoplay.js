@@ -1,4 +1,4 @@
-define(['jquery','playstate'], function($, PlayState) {
+define(['jquery'], function($) {
 	function AutoPlay(game) {
 		this.game = game;
 		this.speed = 250;
@@ -134,8 +134,6 @@ define(['jquery','playstate'], function($, PlayState) {
 		return arr;
 	};
 
-	// Not using playstate yet
-	AutoPlay.PlayState
 	window.AutoPlay = AutoPlay;
 
 	function AutoPlayV2(game) {
