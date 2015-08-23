@@ -1,8 +1,18 @@
 html {}
 body { margin: 0; font-size: 12px; }
-body { background: #33AA88; }
+body {
+	/* background: #33AA88; */
+	/* background: url(table1.png); */
+}
 #play { font-size: 24px; }
 #log { font-size: 12px; }
+
+#controller {
+	border: 1px solid black;
+	background: #aaaaaa;
+	position: fixed;
+	bottom: 0; right: 0;
+}
 
 
 /* Default Size Shape Styling */
@@ -25,6 +35,7 @@ body { background: #33AA88; }
 	border: 1px solid #99ccaa;
 	background: #66aa99;
 	color: #99ccaa;
+	opacity: 0.6;
 }
 .card { background: white; }
 .card.down::after {
@@ -46,6 +57,9 @@ body { background: #33AA88; }
 	position: absolute;
 }
 
+.card.down.flip::after {
+	transform: rotate(180deg);
+}
 .card.red { color: #aa0000; }
 
 /*.suitSpade, .suitHeart, .suitClub, .suitDiamond {

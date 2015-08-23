@@ -24,6 +24,9 @@ define(function() {
 		},
 		toString: function() {
 			return this.face() + ' ' + this.suit();
+		},
+		valueOf: function() {
+			return (this.suitValue) * 14 + this.faceValue;
 		}
 	};
 	var suits = Card.suits = 'Joker Spade Heart Club Diamond'.split(' ');
@@ -41,15 +44,15 @@ define(function() {
 		span.data('Card', card);
 		return span;
 	}
+	function cardFromValue(value) {
+		var face = (value % 14);
+		var suit = Math.floor(value / 14);
+		return new Card(face, suit);
+	}
+	Card.fromValue = cardFromValue;
 
 	// Simple Deck
-	function Deck() {
-		for (var suit=4; suit > 0; suit--) {
-			for (var face=13; face > 0; face--) {
-				this.unshift(new Card(face,suit));
-			}
-		}
-	};
+	function Deck() {};
 	Deck.prototype = [];
 	Deck.prototype.shuffle = function(type, count) {
 		count = (typeof count == 'number' ? count :
@@ -60,7 +63,41 @@ define(function() {
 			count--;
 		}
 	};
-	
+
+	function createFullDeck() {
+		var deck = new Deck();
+		for (var suit=4; suit > 0; suit--) {
+			for (var face=13; face > 0; face--) {
+				deck.unshift(new Card(face,suit));
+			}
+		}
+		return deck;
+	}
+	Deck.full = createFullDeck;
+
+	function createDeckFromSerial(base36) {
+		var deckValue = parseInt(base36, 36);
+		var deck = new Deck();
+		while (deckValue > 0) {
+			var cardValue = deckValue % 70;
+			deckValue -= cardValue;
+			deckValue /= 70;
+			deck.push(Card.fromValue(cardValue));
+		}
+		return deck;
+	}
+	Deck.fromSerial = createDeckFromSerial;
+
+	// Serializing
+	Deck.prototype.serialize = function() {
+		var deckValue = 0;
+		for (var i = 0, l = this.length; i < l; i++) {
+			if (i > 0) { deckValue *= 70; }
+			deckValue += this[i].valueOf();
+		}
+		return deckValue.toString(36);
+	};
+
 	// zero inclusive to max exclusive
 	function randomInt(max) { return Math.floor(Math.random() * max); }
 	var shuffles = {
