@@ -2,7 +2,7 @@ html {}
 body { margin: 0; font-size: 12px; }
 body {
 	/* background: #33AA88; */
-	/* background: url(table1.png); */
+	background: url(table2.jpg);
 }
 #play { font-size: 24px; }
 #log { font-size: 12px; }
@@ -32,9 +32,9 @@ body {
 	border: 1px solid black;
 }
 .foundation::before, .tableau::before {
-	border: 1px solid #99ccaa;
-	background: #66aa99;
-	color: #99ccaa;
+	border: 1px solid #999999;
+	background: #aaaaaa;
+	color: #666666;
 	opacity: 0.6;
 }
 .card { background: white; }
@@ -130,7 +130,7 @@ body {
 	border-radius: 6px;
 }
 .foundation::before, .tableau::before {
-	border: 2px solid #99ccaa;
+	border: 2px solid #999999;
 	border-radius: 6px;
 }
 .card { background: white; }

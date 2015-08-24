@@ -1,31 +1,52 @@
-define(['jquery'], function($) {
-	function AutoPlay(game) {
+define(['jquery','card'], function($, Card) {
+	var Deck = Card.Deck;
+
+	function AutoPlayV2(game) {
 		this.game = game;
+		this.bases = $().add(game.foundations).add(game.tableaux);
 		this.speed = 250;
 	}
-	AutoPlay.prototype = {
+	AutoPlayV2.prototype = {
 		start: function() {
+			this.stopped = false;
+			this.states = {};
+			this.moves = [];
+			this.safeStart();
+		},
+		stop: function() {
+			this.stopped = true;
+		},
+		safeStart: function() {
 			if (this.stopped) { return; }
 			setTimeout(function(that){
 				that.run()
 			}, this.speed, this);
 		},
-		stop: function() {
-			this.stopped = true;
-		},
-		restart: function() {
-			this.stopped = false;
-			this.start();
-		},
 		run: function() {
-			if (this.phaseReveal()
-					|| this.phaseFoundations()
-					|| this.phaseKingSpace()
-					|| this.phaseRemaining()) {
-				this.start();
+			// where am i?
+			// have i been here before?
+			var stateId = makeStateId(this.game);
+			if (stateId in this.states) {
+				this.moves = this.states[stateId];
 			} else {
-				alert('All that I can do...');
+				this.moves = this.findAllMoves();
+				this.states[stateId] = this.moves;
 			}
+			// where have i not gone?
+			var move = this.getBestMove();
+			if (move && this.tryMove(move)) {
+				if (move.foundation || !move.returnable) {
+					// non-returnables should change all future states.
+					this.states = [];
+					this.moves = undefined;
+				}
+				this.safeStart();
+			} else {
+				alert('Done what I can!');
+			}
+		},
+		tryMove: function(move) {
+			return this.game.tryMoveCard(move.card, move.base);
 		},
 		getBase: function(type, limit) {
 			if (typeof type == 'string') {
@@ -63,60 +84,111 @@ define(['jquery'], function($) {
 				return fn.call(this, $(elem));
 			}, this);
 		},
-		eachCard: function(limit, fn) {
-			return this.eachAny('cards', limit, fn, 6);
-		},
-		eachFoundation: function(fn) {
-			return this.eachAny('foundations', fn);
-		},
-		eachTableau: function(fn) {
-			return this.eachAny('tableaux', fn, 2);
-		},
 		getCards: function(limit) {
 			return this.getBase('cards', limit);
 		},
-		tryTableaux: function(limit) {
-			return this.eachCard(limit,function(card) {
-				if (card.is(':contains(K):first-child')) {
-					console.log(card.data('Card').toString());
-					throw "Error: First Child Kings should not be moved yet...";
+		getBestMove: function() {
+			// pick a move order:
+			//   revealling moves
+			//   open king space if needed
+			//   foundation moves
+			//   remaining non-returnable moves
+			//   lastly returnable moves
+			//     eventually with a recursion check.
+			return this.getRevealMove() ||
+				this.getOtherMove() ||
+				this.getFoundationMove() ||
+				this.getKingSpaceMove() ||
+				this.getReturnableMove();
+		},
+		findAllMoves: function() {
+			// look for allowed moves
+			var moves = [];
+			this.eachAny('cards', function(card) {
+				this.findMovesForCard(card, moves);
+			});
+			return moves;
+		},
+		findMovesForCard: function(card, moves) {
+			this.eachAny('foundation', function(found) {
+				if (this.game.allowMove(card, found)) {
+					moves.push(this.createMoveData(card,found));
 				}
-				return this.eachTableau(function(tableau) {
-					return this.game.tryMoveCard(card,tableau);
-				});
+			});
+			this.eachAny('tableaux', function(found) {
+				if (this.game.allowMove(card, found)) {
+					moves.push(this.createMoveData(card,found));
+				}
 			});
 		},
-		isAllRevealed: function() {
-			return this.getCards('.down + .card').length == 0;
+		createMoveData: function(card, base) {
+			return {
+				card: card,
+				base: base,
+				foundation: base.is('.foundation'),
+				returnable: this.checkReturnable(card),
+				kingspace: card.is(':first-child'),
+				reveal: this.checkReveal(card)
+			};
 		},
-		phaseReveal: function() {
-			return this.tryTableaux('.down + .card');
-		},
-		phaseFoundations: function() {
-			return this.eachCard(':last-child', function(card) {
-				return this.eachFoundation(function(foundation) {
-					return this.game.tryMoveCard(card,foundation);
-				});
-			});
-		},
-		phaseKingSpace: function() {
-			var kings = this.getCards(':not(:first-child):contains(K)');
-			var tabs = this.game.tableaux.filter(':empty');
-			if (kings.length > tabs.length) {
-				return this.tryTableaux(':not(:contains(K)):first-child');
+		checkReturnable: function(card) {
+			var prev = card.prev();
+			if (prev.length > 0 && !prev.is('.down')) {
+				card = card.data('Card');
+				prev = prev.data('Card');
+				return (prev.faceValue - 1 == card.faceValue && prev.red() != card.red());
 			}
-			return this.tryTableaux(kings);
+			return false;
 		},
-		phaseRemaining: function() {
-			return this.tryTableaux(':not(:first-child)');
+		checkReveal: function(card) {
+			var prev = card.prev();
+			return prev.length > 0 && prev.is('.down');
+		},
+		getBestMoveFilter(filter, shuffle) {
+			var moves = this.moves.slice(0), i, l = moves.length;
+			if (shuffle) {
+				if (typeof shuffle != 'number') {
+					shuffle = 5;
+				}
+				arrayShuffle(moves, shuffle);
+			}
+			for (i=0; i<l; i++) {
+				if (filter(moves[i])) {
+					return moves[i];
+				}
+			}
+		},
+		getRevealMove: function() {
+			return this.getBestMoveFilter(function(move) {
+				return move.reveal;
+			});
+		},
+		getOtherMove: function() {
+			return this.getBestMoveFilter(function(move) {
+				return !move.foundation && !move.returnable && !move.kingspace;
+			});
+		},
+		getKingSpaceMove: function() {
+			var kings = this.getBase('cards', ':not(:first-child):contains(K)');
+			var tabs = this.getBase('tableaux', ':empty');
+			if (kings.length > tabs.length) {
+				return this.getBestMoveFilter(function(move) {
+					return move.kingspace;
+				});
+			}
+		},
+		getFoundationMove: function() {
+			return this.getBestMoveFilter(function(move) {
+				return move.foundation;
+			});
+		},
+		getReturnableMove: function() {
+			// TODO: Make this smarter about returnable paths.
+			return this.getBestMoveFilter(function(move) {
+				return !move.foundation && move.returnable;
+			}, true);
 		}
 	};
-
-	function specialIndex(node) {
-		var children = node.parentNode.childNodes;
-		var index = 1 + children.length - Array.prototype.indexOf.call(children, node);
-		return Math.ceil(index);
-	}
 
 	function arrayShuffleOnce(arr) {
 		var parts = arr.splice(0), ind;
@@ -132,82 +204,6 @@ define(['jquery'], function($) {
 			count--;
 		}
 		return arr;
-	};
-
-	window.AutoPlay = AutoPlay;
-
-	function AutoPlayV2(game) {
-		this.game = game;
-		this.cards = $().add(game.tableaux.find('.card'));
-		this.bases = $().add(game.foundations).add(game.tableaux);
-		this.states = {};
-		this.moves;
-	}
-	AutoPlayV2.prototype = {
-		start: function() {
-			this.stopped = false;
-			this.safeStart();
-		},
-		stop: function() {
-			this.stopped = true;
-		},
-		safeStart: function() {
-			if (this.stopped) { return; }
-			setTimeout(function(that){
-				that.run()
-			}, this.speed, this);
-		},
-		run: function() {
-			// where am i?
-			// have i been here before?
-			var stateId = makeStateId(this.game);
-			if (stateId in this.states) {
-				this.moves = this.states[stateId];
-			} else {
-				this.moves = this.findMoves();
-				this.states[stateId] = this.moves;
-			}
-			// where have i not gone?
-			var move = this.getBestMove();
-			if (move && this.tryMove(move)) {
-				this.safeStart();
-			} else {
-				alert('Done what I can!');
-			}
-		},
-		tryMove: function(move) {
-			return this.game.tryMoveCard(move.card, move.base);
-		},
-		getBestMove: function() {
-			// pick a move order:
-			//   revealling moves
-			//   open king space if needed
-			//   foundation moves
-			//   remaining non-returnable moves
-			//   lastly returnable moves
-			//     eventually with a recursion check.
-		},
-		findMoves: function() {
-			// look for allowed moves
-			var moves = this.moves = [];
-		},
-		createMoveData: function(card, base) {
-			return move = {
-				card: card,
-				base: base,
-				foundation: base.is('.foundation'),
-				returnable: this.checkReturnable(card)
-			};
-		},
-		checkReturnable: function(card) {
-			var prev = card.perv();
-			if (prev.length > 0 && !prev.is('.down')) {
-				card = card.data('Card');
-				prev = prev.data('Card');
-				return (prev.faceValue - 1 == card.faceValue && prev.red() != card.red());
-			}
-			return false;
-		}
 	};
 
 	function makeStateId(game) {
@@ -232,5 +228,5 @@ define(['jquery'], function($) {
 				game.tryMoveCard(move.card, move.base);
 			}*/
 
-	return AutoPlay;
+	return AutoPlayV2;
 });

@@ -34,7 +34,7 @@ require('jquery game'.split(' '), function($, Game) {
 			});
 		$('<button type="button">AutoPlay</button>')
 			.appendTo('#controller').on('click', function() {
-				game.autoPlay().restart();
+				game.autoPlay().start();
 			});
 		$('<button type="button">Stop AP</button>')
 			.appendTo('#controller').on('click', function() {

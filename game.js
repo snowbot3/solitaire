@@ -8,7 +8,6 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 		that.success = success;
 		that.options = { stopdrag: '.down' };
 		drags.prop('draggable',true).on('dragstart', function(ev) {
-			log('dragstart event');
 			return that.onDragStart(ev, $(this));
 		}).on('dragend', function(ev) {
 			return that.onDragEnd(ev, $(this));
@@ -16,7 +15,6 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 		drops.on('dragover', function(ev) {
 			return that.onDragOver(ev, $(this));
 		}).on('drop', function(ev) {
-			log('drop event');
 			return that.onDrop(ev, $(this));
 		});
 	}
@@ -26,7 +24,6 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 			return (selector && el.is(selector));
 		},
 		onDragStart: function(ev, el) {
-			log('onDragStart call');
 			if (this.allowDrag(el)) {
 				ev.stopPropagation();
 				return false;
@@ -98,7 +95,6 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 			}
 		},
 		onDblClick: function(ev, el) {
-			log('onDblClick');
 			var that = this;
 			var moved = false;
 			that.drops.each(function() {
@@ -125,14 +121,14 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 		}
 	};
 
-	function TouchMove(draggable, droppable, success) {
+	function TouchMove(draggable, droppable) {
 		var that = this;
 			drags = that.drags = $(draggable),
 			drops = that.drops = $(droppable);
-		that.success = success;
 		that.activeElem = null;
+		that.lastElem = null;
 		that.moving = false;
-		that.options = { stopmove: '.down' };
+		that.last = null;
 		// touchstart touchend touchcancel touchleave touchmove
 		// dragstart dragend dragover drop
 		drags.on('touchstart', function(ev) {
@@ -145,32 +141,35 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 	}
 	TouchMove.prototype = {
 		onTouchStart: function(ev, el) {
-			log('touchstart event');
 			this.activeElem = el;
 			this.moving = false;
 		},
 		onTouchEnd: function(ev, el) {
-			log('touchend event');
 			if (this.moving) {
 				this.checkDrop(ev);
+				this.activeElem = null;
+				this.lastElem = null;
+				this.last = null;
 				return el.triggerHandler('dragend');
 			}
 			// click should happen naturally
-			log('p1');
 			var now = performance.now();
-			log('p2');
-			if (this.last && now - this.last < 1000) {
-				log('trigger');
-				el.triggerHandler('dblclick');
-				this.last = null;
-			} else {
-				log('now: ' + now);
-				this.last = now;
+			if (this.lastElem && this.lastElem.is(this.activeElem)) {
+				if (this.last && now - this.last < 1000) {
+					this.last = null;
+					this.activeElem = null;
+					this.lastElem = null;
+					el.triggerHandler('dblclick');
+					ev.preventDefault();
+					return false;
+				}
 			}
+			this.last = now;
+			this.lastElem = this.activeElem;
+			this.activeElem = null;
 		},
 		onTouchMove: function(ev, el) {
 			if (!this.moving) {
-				log('touchmove first: ' + this.moving);
 				this.moving = true;
 				this.activeElem.triggerHandler('dragstart');
 			}
@@ -188,7 +187,6 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 				elem = elem.parents(this.drops);
 			}
 			if (elem.length > 0) {
-				log('trying to trigger?');
 				elem.triggerHandler('drop');
 			}
 		}
@@ -260,8 +258,9 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 		},
 		redeal: function() {
 			this.clear();
-			var deck = Deck.fromSerial(this.hash);
-			this.deal(deck);
+			this.deal();
+			//var deck = Deck.full()fromSerial(this.hash);
+			//this.deal(deck);
 		},
 		tryMove: function(elem, base) {
 			if (this.allowMove(elem,base)) {
