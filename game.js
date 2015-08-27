@@ -1,6 +1,6 @@
 // Solitaire Game
 
-define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
+define('jquery deck autoplay'.split(' '), function($, Deck, AutoPlay) {
 	function DragDrop(draggable, droppable, success) {
 		var that = this,
 			drags = that.drags = $(draggable),
@@ -220,7 +220,6 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 		},1);
 	}
 
-	var Deck = Card.Deck;
 	function Game(jqPlay) {
 		var area = this.play = $(jqPlay);
 		this.foundations = area.find('.foundation');
@@ -338,7 +337,7 @@ define('jquery card autoplay'.split(' '), function($, Card, AutoPlay) {
 		},
 		bind: function(name, fn) {
 			var evname = "Card" + properCase(name);
-			this.play.bind(evname, ev);
+			this.play.bind(evname, fn);
 		},
 		trigger: function(name) {
 			var evname = "Card" + properCase(name);

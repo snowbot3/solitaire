@@ -1,10 +1,12 @@
-define(['jquery','card'], function($, Card) {
-	var Deck = Card.Deck;
-
+define(['jquery','deck'], function($, Deck) {
 	function AutoPlayV2(game) {
 		this.game = game;
 		this.bases = $().add(game.foundations).add(game.tableaux);
 		this.speed = 250;
+		var that = this;
+		game.bind('move',function() {
+			that.clearHint();
+		});
 	}
 	AutoPlayV2.prototype = {
 		start: function() {
@@ -12,6 +14,7 @@ define(['jquery','card'], function($, Card) {
 			this.states = {};
 			this.moves = [];
 			this.safeStart();
+			this.round = 0;
 		},
 		stop: function() {
 			this.stopped = true;
@@ -21,6 +24,27 @@ define(['jquery','card'], function($, Card) {
 			setTimeout(function(that){
 				that.run()
 			}, this.speed, this);
+		},
+		hint: function() {
+			var that = this;
+			that.states = {};
+			that.moves = that.findAllMoves();
+			var move = that.getBestMove();
+			if (move) {
+				move.card.addClass('hint');
+				move.base.addClass('hint');
+				that.hintTimer = setTimeout(function() {
+					that.clearHint();
+				}, 10000);
+			} else {
+				window.alert('No moves left');
+			}
+		},
+		clearHint: function() {
+			if (this.hintTimer) {
+				this.hintTimer = clearTimeout(this.hintTimer);
+				$('.hint').removeClass('hint');
+			}
 		},
 		run: function() {
 			// where am i?
@@ -35,14 +59,15 @@ define(['jquery','card'], function($, Card) {
 			// where have i not gone?
 			var move = this.getBestMove();
 			if (move && this.tryMove(move)) {
+				this.round++;
 				if (move.foundation || !move.returnable) {
 					// non-returnables should change all future states.
-					this.states = [];
+					this.states = {};
 					this.moves = undefined;
 				}
 				this.safeStart();
 			} else {
-				alert('Done what I can!');
+				alert('Done what I can! ' + this.round + ' moves!');
 			}
 		},
 		tryMove: function(move) {
@@ -95,10 +120,11 @@ define(['jquery','card'], function($, Card) {
 			//   remaining non-returnable moves
 			//   lastly returnable moves
 			//     eventually with a recursion check.
-			return this.getRevealMove() ||
-				this.getOtherMove() ||
+			return this.getUseKingSpaceMove() ||
+				this.getRevealMove() ||
+				this.getOpenKingSpaceMove() ||
 				this.getFoundationMove() ||
-				this.getKingSpaceMove() ||
+				this.getOtherMove() ||
 				this.getReturnableMove();
 		},
 		findAllMoves: function() {
@@ -127,7 +153,8 @@ define(['jquery','card'], function($, Card) {
 				base: base,
 				foundation: base.is('.foundation'),
 				returnable: this.checkReturnable(card),
-				kingspace: card.is(':first-child'),
+				firstchild: card.is(':first-child'),
+				king: card.data('Card').face() == 'K',
 				reveal: this.checkReveal(card)
 			};
 		},
@@ -165,15 +192,24 @@ define(['jquery','card'], function($, Card) {
 		},
 		getOtherMove: function() {
 			return this.getBestMoveFilter(function(move) {
-				return !move.foundation && !move.returnable && !move.kingspace;
+				return !move.foundation && !move.returnable && !move.firstchild;
 			});
 		},
-		getKingSpaceMove: function() {
+		getOpenKingSpaceMove: function() {
 			var kings = this.getBase('cards', ':not(:first-child):contains(K)');
 			var tabs = this.getBase('tableaux', ':empty');
 			if (kings.length > tabs.length) {
 				return this.getBestMoveFilter(function(move) {
-					return move.kingspace;
+					return move.firstchild && !move.king;
+				});
+			}
+		},
+		getUseKingSpaceMove: function() {
+			var kings = this.getBase('cards', ':not(:first-child):contains(K)');
+			var tabs = this.getBase('tableaux', ':empty');
+			if (kings.length > 0 && tabs.length > 0) {
+				return this.getBestMoveFilter(function(move) {
+					return move.king && !move.firstchild;
 				});
 			}
 		},
@@ -208,15 +244,16 @@ define(['jquery','card'], function($, Card) {
 
 	function makeStateId(game) {
 		var results = [];
-		game.tableaux.each(function(elem){
-			results.push(makeStateIdPart($(elem)));
+		game.tableaux.each(function(){
+			results.push(makeStateIdPart($(this)));
 		});
 		return results.join(',');
 	}
 	function makeStateIdPart(table) {
 		var deck = new Deck();
-		table.find('.card').each(function(elem) {
-			deck.push($(elem).data('Card'));
+		table.find('.card').each(function() {
+			var card = $(this).data('Card');
+			deck.push(card);
 		});
 		return deck.serialize();
 	}

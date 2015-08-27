@@ -15,7 +15,13 @@ requirejs.config({
 	}
 });
 
-require('QUnit tests/cardTest'.split(' '), function(QUnit, cardTest) {
+require([
+	'QUnit',
+	'tests/utilTest',
+	'tests/cardTest',
+	'tests/deckTest'
+],
+function(QUnit, cardTest, deckTest) {
 	QUnit.load();
 	QUnit.start();
 });

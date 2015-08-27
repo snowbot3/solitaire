@@ -28,29 +28,39 @@ require('jquery game'.split(' '), function($, Game) {
 		var game = window.currentGame = new Game('#play');
 
 		// Controller Buttons
-		$('<button type="button">Reload</button>')
-			.appendTo('#controller').on('click', function() {
-				location.reload();
-			});
-		$('<button type="button">AutoPlay</button>')
-			.appendTo('#controller').on('click', function() {
+		var apControls = $('<span class="AutoPlayControls"></span>').appendTo('#controller').hide();
+		$('<button type="button">Start AP</button>')
+			.appendTo(apControls).on('click', function() {
 				game.autoPlay().start();
 			});
 		$('<button type="button">Stop AP</button>')
-			.appendTo('#controller').on('click', function() {
+			.appendTo(apControls).on('click', function() {
 				game.autoPlay().stop();
 			});
 		$('<button type="button">Faster</button>')
-			.appendTo('#controller').on('click', function() {
+			.appendTo(apControls).on('click', function() {
 				var speed = game.autoPlay().speed;
 				speed = (speed > 100 ? speed - 50 : 50);
 				game.autoPlay().speed = speed;
 			});
 		$('<button type="button">Slower</button>')
-			.appendTo('#controller').on('click', function() {
+			.appendTo(apControls).on('click', function() {
 				var speed = game.autoPlay().speed;
 				speed = (speed < 400 ? speed + 50 : 450);
 				game.autoPlay().speed = speed;
+			});
+
+		$('<button type="button">Hint</button>')
+			.appendTo('#controller').on('click', function() {
+				game.autoPlay().hint();
+			});
+		$('<button type="button">Auto</button>')
+			.appendTo('#controller').on('click', function() {
+				apControls.toggle();
+			});
+		$('<button type="button">ReDeal</button>')
+			.appendTo('#controller').on('click', function() {
+				location.reload();
 			});
 		$('<button type="button">FullScreen</button>')
 			.appendTo('#controller').on('click', function() {
