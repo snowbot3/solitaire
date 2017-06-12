@@ -14,7 +14,7 @@ class Card {
         return Card.suits[this.suitValue]
     }
     isRed() {
-        return (this.suit === 2 || this.suit === 4)
+        return (this.suitValue === 2 || this.suitValue === 4)
     }
 }
 Card.suits = ['Joker','Spade','Heart','Club','Diamond']

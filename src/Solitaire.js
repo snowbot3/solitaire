@@ -4,6 +4,8 @@
 **/
 import React from 'react'
 import Card from './Card'
+import Stack from './Stack'
+import Deck from './Deck'
 
 class Game {
     constructor() {
@@ -76,94 +78,12 @@ class Game {
             stackFrom[stackFrom.length-1].shown = true
         }
     }
-}
-
-class Stack {
-    constructor() {
-        this.cards = []
+    tableaux() {
+        return this.stacks.slice(0,8);
     }
-    pullTop() {
-        return this.cards.shift()
+    foundations() {
+        return this.stacks.slice(8);
     }
-    pullBottom() {
-        return this.cards.pop()
-    }
-    pullAll() {
-        return this.cards.splice(1)
-    }
-    push(ind) {
-        return this.cards.splice(ind,1)[0]
-    }
-    size() {
-        return this.cards.length
-    }
-    get(ind) {
-        return this.cards[ind]
-    }
-    pushTop(card) {
-        if (card) {
-            if (card.length) {
-                // if adding the top of stack, start adding from the bottom of the new cards
-                for (var ind=card.length-1; ind>-1; ind--) {
-                    this.pushTop(card[ind])
-                }
-            } else {
-                if (card instanceof Card) {
-                    this.cards.push(card)
-                } else {
-                    throw new Error('Solitaire:Stack:pushTop: can only push Card to Stack')
-                }
-            }
-        } else {
-            throw new Error('Solitaire:Stack:pushTop: must push Card to Stack')
-        }
-    }
-    pushBottom(card) {
-        if (card) {
-            if (card.length) {
-                // if adding the bottom of stack, start adding from the top of the new cards
-                for (var ind=0,len=card.length; ind<len; ind++) {
-                    this.pushBottom(card[ind])
-                }
-            } else {
-                if (card instanceof Card) {
-                    this.cards.unshift(card)
-                } else {
-                    throw new Error('Solitaire:Stack:pushBottom: can only push Card to Stack')
-                }
-            }
-        } else {
-            throw new Error('Solitaire:Stack:pushBottom: must push Card to Stack')
-        }
-    }
-}
-
-class Deck extends Stack {
-    shuffle(count) {
-        while (count>0) {
-            shufflePull(this)
-            count--
-        }
-    }
-}
-Deck.full = function() {
-    var deck = new Deck()
-    for (var suit=4; suit>0; suit--) {
-        for (var face=13; face>0; face--) {
-            deck.pushTop(new Card(face,suit))
-        }
-    }
-    return deck
-}
-function shufflePull(deck) {
-    var cards = deck.pullAll(), ind
-    for (var len=cards.length; len>0; len--) {
-        ind = randomInt(len)
-        deck.pushBottom(cards.splice(ind,1)[0])
-    }
-}
-function randomInt(max) {
-    return Math.floor(Math.random() * max)
 }
 
 class Solitaire extends React.Component {
@@ -177,19 +97,35 @@ class Solitaire extends React.Component {
     }
     render() {
         return (<div className="Solitaire">
-            {this.state.game.stacks.map(function(stack,stackIndex){
-                return (<div id={"SolitaireStack" + stackIndex}>
-                    {stack.length/*stack.map(function(card,cardIndex){
-                        return (<span className={"SolitaireCard" + cardIndex}>{card.face() + ' ' + card.suit()}</span>)
-                    })*/}
-                </div>)
-            })}
+            <div className="Foundations">
+                {this.state.game.foundations().map(function(stack,stackIndex){
+                    return (<Foundation stack={stack} />)
+                })}
+            </div>
+            <div className="Tableaux">
+                {this.state.game.tableaux().map(function(stack,stackIndex){
+                    return (<div id={"Tableau"+stackIndex}>{stack.size()}</div>)
+                })}
+            </div>
         </div>)
     }
 }
-Solitaire.Game = Game
-Solitaire.Deck = Deck
-Solitaire.Card = Card
+
+class Foundation extends React.Component {
+    render() {
+        var stack = this.props.stack
+        if (!stack) {
+            return (<div className="Foundation">BadStack</div>)
+        }
+        if (stack.isEmpty()) {
+            return (<div className="Foundation">Empty</div>)
+        }
+        return (<div className="Foundation">{this.props.stack.size()}</div>)
+    }
+}
+
+// TODO Foundation Stack Component
+// TODO Tableau Stack Component
 
 // virtually play?
 export default Solitaire
