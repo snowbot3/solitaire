@@ -37,6 +37,17 @@ test('Stack get card', ()=>{
     expect(stack.get(1)).toEqual(cards[1])
 })
 
+test('Stack get top card', ()=>{
+    var stack = new Stack()
+    var cards = stack.cards = [
+        new Card(5,1),
+        new Card(6,2),
+        new Card(7,3),
+        new Card(8,4)
+    ]
+    expect(stack.getTop()).toEqual(cards[3]);
+})
+
 test('Stack push card on top', ()=>{
     var stack = new Stack()
     stack.pushTop(new Card(5,1))

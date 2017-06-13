@@ -22,3 +22,58 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.Solitaire {
+	width: 600px; height: 500px;
+	background: #00aa50;
+	text-align: left;
+}
+
+.Foundation {
+	display: inline-block;
+	margin: 0.25em;
+}
+
+.Tableau {
+	margin: 0.25em;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.Tableau >.Card {
+	margin-bottom: -1.25em;
+}
+.Tableau >.Card.FaceDown {
+	margin-bottom: -2em;
+}
+
+
+.GhostCard {
+	width: 2.25em; height: 2.75em;
+	text-align: center;
+	cursor: pointer;
+	background-color: white;
+	border: 2px solid black;
+	border-radius: 3px;
+	opacity: 0.5;
+}
+
+.Card {
+	width: 2.25em; height: 2.75em;
+	text-align: center;
+	cursor: pointer;
+	background-color: white;
+	border: 2px solid black;
+	border-radius: 3px;
+}
+.Card.Red {
+	color: #aa0000;
+}
+.Card.FaceDown {
+	background-color: #aaaacc;
+}
+
+
+
+
+

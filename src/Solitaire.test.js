@@ -1,12 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Solitaire,{Card,Stack,Deck} from './Solitaire';
+import Game from './Solitaire';
 
+// it === test
 it('renders without crashing', () => {
-  const div = document.createElement('div')
-  ReactDOM.render(<Solitaire />, div)
+	var game = new Game()
 });
 
-test('concept', ()=>{
-    expect(typeof Solitaire.Card).toBe('function')
-})

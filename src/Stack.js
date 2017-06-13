@@ -23,6 +23,9 @@ class Stack {
     get(ind) {
         return this.cards[ind]
     }
+    getTop() {
+        return this.cards[this.cards.length-1]
+    }
     pushTop(card) {
         if (card) {
             if (card.length) {

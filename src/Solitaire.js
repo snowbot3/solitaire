@@ -1,9 +1,7 @@
 /**
- *  Dottie's Solitaire
+ *  Dottie's Solitaire Game
  *  TODO Components come later
 **/
-import React from 'react'
-import Card from './Card'
 import Stack from './Stack'
 import Deck from './Deck'
 
@@ -86,47 +84,5 @@ class Game {
     }
 }
 
-class Solitaire extends React.Component {
-    constructor(prop) {
-        super(prop)
-        var game = new Game()
-        game.deal()
-        this.state = {
-            game: game
-        }
-    }
-    render() {
-        return (<div className="Solitaire">
-            <div className="Foundations">
-                {this.state.game.foundations().map(function(stack,stackIndex){
-                    return (<Foundation stack={stack} />)
-                })}
-            </div>
-            <div className="Tableaux">
-                {this.state.game.tableaux().map(function(stack,stackIndex){
-                    return (<div id={"Tableau"+stackIndex}>{stack.size()}</div>)
-                })}
-            </div>
-        </div>)
-    }
-}
-
-class Foundation extends React.Component {
-    render() {
-        var stack = this.props.stack
-        if (!stack) {
-            return (<div className="Foundation">BadStack</div>)
-        }
-        if (stack.isEmpty()) {
-            return (<div className="Foundation">Empty</div>)
-        }
-        return (<div className="Foundation">{this.props.stack.size()}</div>)
-    }
-}
-
-// TODO Foundation Stack Component
-// TODO Tableau Stack Component
-
-// virtually play?
-export default Solitaire
+export default Game
 
