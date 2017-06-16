@@ -12,7 +12,7 @@ class Game {
             new Stack(), new Stack(), new Stack(), new Stack(),
             new Stack(), new Stack(), new Stack(), new Stack(),
             new Stack(), new Stack(), new Stack(), new Stack()
-        ];
+        ]
     }
     deal() {
         var deck = Deck.full()
@@ -69,7 +69,7 @@ class Game {
     moveCard(indFrom, indCard, indTo) {
         var stackFrom = this.stacks[indFrom],
             stackTo = this.stacks[indTo],
-            args = stackFrom.splice(indCard)
+            args = stackFrom.splice(indCard) //TODO Bug found! need test.
         args.unshift(stackTo.length, 0)
         stackTo.splice.apply(stackTo, args)
         if (stackFrom.length > 0) {
@@ -77,10 +77,10 @@ class Game {
         }
     }
     tableaux() {
-        return this.stacks.slice(0,8);
+        return this.stacks.slice(0,8)
     }
     foundations() {
-        return this.stacks.slice(8);
+        return this.stacks.slice(8)
     }
 }
 

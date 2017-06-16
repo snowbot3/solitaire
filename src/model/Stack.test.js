@@ -45,7 +45,7 @@ test('Stack get top card', ()=>{
         new Card(7,3),
         new Card(8,4)
     ]
-    expect(stack.getTop()).toEqual(cards[3]);
+    expect(stack.getTop()).toEqual(cards[3])
 })
 
 test('Stack push card on top', ()=>{

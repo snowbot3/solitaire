@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
-import Game from './Solitaire';
+import React, { Component } from 'react'
+import logo from './logo.svg'
+import './App.css'
+import Game from './model/Game'
 
 class App extends Component {
   render() {
@@ -15,7 +15,7 @@ class App extends Component {
             <Solitaire/>
         </div>
       </div>
-    );
+    )
   }
 }
 
@@ -81,15 +81,15 @@ class Card extends React.Component {
 	render() {
 		var classes = 'Card',
 			card = this.props.is,
-			content;
+			content
 		if (!card.shown) {
 			classes += ' FaceDown'
-			content = '';
+			content = ''
 		} else {
 			if (card.isRed()) {
 				classes += ' Red'
 			}
-			content = '' + card.face() + ' ' + htmlSuits[card.suitValue];
+			content = '' + card.face() + ' ' + htmlSuits[card.suitValue]
 		}
 		return (<div className={classes}>{content}</div>)
 	}
@@ -100,4 +100,4 @@ class Card extends React.Component {
 
 // virtually play?
 
-export default App;
+export default App
